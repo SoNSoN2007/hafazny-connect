@@ -1,4 +1,3 @@
-
 // This file contains the data structure for all Quran surahs
 
 export interface Surah {
@@ -140,7 +139,11 @@ export const reciters = [
   { id: 'mishary', name: 'Mishary Rashid Alafasy', baseUrl: 'https://server8.mp3quran.net/afs/' },
   { id: 'sudais', name: 'Abdul Rahman Al-Sudais', baseUrl: 'https://server11.mp3quran.net/sds/' },
   { id: 'minshawi', name: 'Mohamed Siddiq El-Minshawi', baseUrl: 'https://server8.mp3quran.net/minsh/' },
-  { id: 'husary', name: 'Mahmoud Khalil Al-Hussary', baseUrl: 'https://server13.mp3quran.net/husr/' }
+  { id: 'husary', name: 'Mahmoud Khalil Al-Hussary', baseUrl: 'https://server13.mp3quran.net/husr/' },
+  { id: 'baset', name: 'Abdul Basit Abdul Samad', baseUrl: 'https://server7.mp3quran.net/basit/' },
+  { id: 'shuraym', name: 'Saud Al-Shuraim', baseUrl: 'https://server10.mp3quran.net/shr/' },
+  { id: 'ghamdi', name: 'Saad Al-Ghamdi', baseUrl: 'https://server9.mp3quran.net/s_gmd/' },
+  { id: 'dosari', name: 'Yasser Al-Dosari', baseUrl: 'https://server11.mp3quran.net/yasser/' }
 ];
 
 // Function to format surah number for URL (e.g., 1 -> 001, 10 -> 010)
@@ -156,3 +159,4 @@ export const getAudioUrl = (surahId: number, reciterId: string = 'mishary'): str
   const formattedNumber = formatSurahNumber(surahId);
   return `${reciter.baseUrl}${formattedNumber}.mp3`;
 };
+
