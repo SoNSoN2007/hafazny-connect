@@ -7,7 +7,7 @@ import { getSurahById, Surah, reciters, getAudioUrl } from '@/lib/quranData';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Mic, Play, Pause, BookmarkIcon, SkipForward, SkipBack } from 'lucide-react';
+import { ArrowLeft, BookOpen, Mic, Play, Pause, BookmarkIcon, SkipForward, SkipBack, ChevronRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
