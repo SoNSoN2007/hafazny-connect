@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,9 @@ import Quran from "./pages/Quran";
 import SurahView from "./pages/SurahView";
 import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
+import Tajweed from "./pages/Tajweed";
+import Arabic from "./pages/Arabic";
+import MemorizationPlan from "./pages/MemorizationPlan";
 import { useEffect } from "react";
 import { getCurrentLanguage } from "./lib/i18n";
 
@@ -43,9 +47,10 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/quran" element={<Quran />} />
               <Route path="/quran/:id" element={<SurahView />} />
-              <Route path="/arabic" element={<NotFound />} />
-              <Route path="/tajweed" element={<NotFound />} />
+              <Route path="/arabic" element={<Arabic />} />
+              <Route path="/tajweed" element={<Tajweed />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/memorization-plan" element={<MemorizationPlan />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

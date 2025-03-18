@@ -6,7 +6,9 @@ interface User {
   id: string;
   name: string;
   email: string;
+  role: 'student' | 'teacher';
   profileImage?: string;
+  joinDate?: string;
   // Add more user properties as needed
 }
 
@@ -16,7 +18,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: 'student' | 'teacher') => Promise<void>;
   logout: () => void;
 }
 
@@ -64,7 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `user-${Date.now()}`,
           name: email.split('@')[0],
           email,
+          role: 'student', // Default role
           profileImage: '/placeholder.svg',
+          joinDate: new Date().toISOString(),
         };
         
         setUser(mockUser);
@@ -80,8 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Mock registration function
-  const register = async (name: string, email: string, password: string): Promise<void> => {
+  // Mock registration function with role selection
+  const register = async (name: string, email: string, password: string, role: 'student' | 'teacher'): Promise<void> => {
     setIsLoading(true);
     
     try {
@@ -95,7 +99,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `user-${Date.now()}`,
           name,
           email,
+          role,
           profileImage: '/placeholder.svg',
+          joinDate: new Date().toISOString(),
         };
         
         setUser(mockUser);
