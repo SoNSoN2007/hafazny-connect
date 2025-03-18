@@ -1,11 +1,45 @@
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SurahDetails from '@/components/SurahDetails';
 import { getTranslation } from '@/lib/i18n';
-import { BookOpen, Search, Play, ChevronRight } from 'lucide-react';
+import { surahs, Surah } from '@/lib/quranData';
+import { BookOpen, Search, Play, ChevronRight, Filter, BookmarkIcon } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Quran: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
+  const [filterType, setFilterType] = useState<'all' | 'meccan' | 'medinan'>('all');
+  const [openDialog, setOpenDialog] = useState(false);
+  
+  // Filter surahs based on search and type filter
+  const filteredSurahs = surahs.filter(surah => {
+    const matchesSearch = 
+      surah.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      surah.arabicName.includes(searchTerm) ||
+      surah.englishName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      surah.id.toString().includes(searchTerm);
+    
+    const matchesType = 
+      filterType === 'all' || 
+      (filterType === 'meccan' && surah.type === 'meccan') ||
+      (filterType === 'medinan' && surah.type === 'medinan');
+    
+    return matchesSearch && matchesType;
+  });
+  
+  const handleSurahClick = (surah: Surah) => {
+    setSelectedSurah(surah);
+    setOpenDialog(true);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -35,21 +69,41 @@ const Quran: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Search */}
+          {/* Search and Filters */}
           <div className="glass-panel p-6 rounded-xl mb-8 animate-fade-in-up">
-            <div className="max-w-xl mx-auto">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-grow relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search surah or verse..." 
-                    className="input-field pl-10 w-full"
-                  />
-                </div>
-                <button className="btn-primary">
-                  Search
-                </button>
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-grow relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input 
+                  type="text" 
+                  placeholder="Search surah or verse..." 
+                  className="pl-10 w-full"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 min-w-[300px]">
+                <Button 
+                  variant={filterType === 'all' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setFilterType('all')}
+                >
+                  All
+                </Button>
+                <Button 
+                  variant={filterType === 'meccan' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setFilterType('meccan')}
+                >
+                  Meccan
+                </Button>
+                <Button 
+                  variant={filterType === 'medinan' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setFilterType('medinan')}
+                >
+                  Medinan
+                </Button>
               </div>
             </div>
           </div>
@@ -67,51 +121,120 @@ const Quran: React.FC = () => {
             </div>
           </div>
 
-          {/* Surahs List - Just showing a few for demo */}
-          <h2 className="text-2xl font-semibold mb-4 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            Surahs
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            {[
-              { id: 1, name: "Al-Fatihah", arabicName: "الفاتحة", verses: 7, meaning: "The Opening" },
-              { id: 2, name: "Al-Baqarah", arabicName: "البقرة", verses: 286, meaning: "The Cow" },
-              { id: 3, name: "Aal-Imran", arabicName: "آل عمران", verses: 200, meaning: "The Family of Imran" },
-              { id: 4, name: "An-Nisa", arabicName: "النساء", verses: 176, meaning: "The Women" }
-            ].map((surah, index) => (
-              <div 
-                key={surah.id}
-                className="glass-panel p-4 rounded-xl flex items-center justify-between animate-fade-in-up" 
-                style={{ animationDelay: `${400 + index * 100}ms` }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-hafazny-blue/10 flex items-center justify-center text-hafazny-blue font-semibold">
-                    {surah.id}
-                  </div>
-                  <div>
-                    <div className="flex items-center">
-                      <h3 className="font-medium">{surah.name}</h3>
-                      <span className="mx-2 text-gray-400">•</span>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{surah.meaning}</p>
+          {/* Tabs for Surahs */}
+          <Tabs defaultValue="grid" className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold animate-fade-in" style={{ animationDelay: '300ms' }}>
+                Surahs
+              </h2>
+              <TabsList>
+                <TabsTrigger value="grid">Grid</TabsTrigger>
+                <TabsTrigger value="list">List</TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Grid View */}
+            <TabsContent value="grid" className="mt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {filteredSurahs.map((surah, index) => (
+                  <div 
+                    key={surah.id}
+                    className="glass-panel p-4 rounded-xl flex items-center justify-between cursor-pointer hover:shadow-md transition-all animate-fade-in-up transform hover:-translate-y-1" 
+                    style={{ animationDelay: `${400 + index * 50}ms` }}
+                    onClick={() => handleSurahClick(surah)}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 rounded-full bg-hafazny-blue/10 flex items-center justify-center text-hafazny-blue font-semibold">
+                        {surah.id}
+                      </div>
+                      <div>
+                        <div className="flex items-center">
+                          <h3 className="font-medium">{surah.name}</h3>
+                          <span className="mx-2 text-gray-400">•</span>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{surah.meaning}</p>
+                        </div>
+                        <div className="flex items-center">
+                          <p className="arabic text-lg font-arabic">{surah.arabicName}</p>
+                          <span className="mx-2 text-gray-400">•</span>
+                          <p className="text-xs text-gray-500">{surah.verses} verses</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <p className="arabic text-lg font-arabic">{surah.arabicName}</p>
-                      <span className="mx-2 text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{surah.verses} verses</p>
+                    <div className="flex space-x-2">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="rounded-full h-8 w-8 p-0 flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSurahClick(surah);
+                        }}
+                      >
+                        <Play className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-                <div className="flex space-x-2">
-                  <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                    <Play className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </TabsContent>
+
+            {/* List View */}
+            <TabsContent value="list" className="mt-0">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+                <ScrollArea className="h-[60vh]">
+                  <div className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-900 px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider">
+                      <div className="grid grid-cols-12 gap-2">
+                        <div className="col-span-1">#</div>
+                        <div className="col-span-3">Name</div>
+                        <div className="col-span-3">Arabic</div>
+                        <div className="col-span-2">Type</div>
+                        <div className="col-span-2">Verses</div>
+                        <div className="col-span-1"></div>
+                      </div>
+                    </div>
+                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {filteredSurahs.map((surah) => (
+                        <div 
+                          key={surah.id} 
+                          className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                          onClick={() => handleSurahClick(surah)}
+                        >
+                          <div className="grid grid-cols-12 gap-2 items-center">
+                            <div className="col-span-1 font-medium">{surah.id}</div>
+                            <div className="col-span-3">{surah.name}<div className="text-sm text-gray-500">{surah.meaning}</div></div>
+                            <div className="col-span-3 font-arabic text-lg">{surah.arabicName}</div>
+                            <div className="col-span-2"><Badge variant={surah.type === 'meccan' ? 'outline' : 'secondary'}>{surah.type}</Badge></div>
+                            <div className="col-span-2">{surah.verses}</div>
+                            <div className="col-span-1 flex justify-end">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                className="rounded-full h-8 w-8 p-0 flex items-center justify-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSurahClick(surah);
+                                }}
+                              >
+                                <Play className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          {/* Surah Details Dialog */}
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogContent className="max-w-4xl">
+              {selectedSurah && <SurahDetails surah={selectedSurah} />}
+            </DialogContent>
+          </Dialog>
           
           {/* Coming Soon Features */}
           <div className="glass-panel p-6 rounded-xl mb-8 bg-gradient-to-r from-hafazny-teal/80 to-hafazny-blue/80 text-white animate-fade-in" style={{ animationDelay: '800ms' }}>
