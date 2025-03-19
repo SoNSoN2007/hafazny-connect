@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Tajweed from "./pages/Tajweed";
 import Arabic from "./pages/Arabic";
 import MemorizationPlan from "./pages/MemorizationPlan";
+import About from "./pages/About";
 import { useEffect } from "react";
 import { getCurrentLanguage } from "./lib/i18n";
 
@@ -51,6 +52,7 @@ const App = () => {
               <Route path="/tajweed" element={<Tajweed />} />
               <Route path="/community" element={<Community />} />
               <Route path="/memorization-plan" element={<MemorizationPlan />} />
+              <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
