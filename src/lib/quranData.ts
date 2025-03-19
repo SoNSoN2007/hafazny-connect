@@ -1,3 +1,4 @@
+
 import { SurahType } from "@/types";
 
 export interface Surah {
@@ -1058,4 +1059,7 @@ export const reciters = [
 // Function to get audio URL for a specific surah and reciter
 export const getAudioUrl = (surahId: number, reciterId: string): string => {
   // In a real application, this would point to actual audio files
-  // For now,
+  // For now, returning a placeholder URL format
+  const formattedSurahId = surahId.toString().padStart(3, '0');
+  return `https://audio.qurancdn.com/${reciterId}/murattal/${formattedSurahId}.mp3`;
+};
