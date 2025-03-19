@@ -1,16 +1,9 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { BookOpen, Play, Mic, Award, BookMarked, BookText } from 'lucide-react';
 import { tajweedRules } from '@/lib/quranData';
-import { TajweedRule } from '@/types'; // Import TajweedRule from types instead
+import { TajweedRule } from '@/types'; // Fixed this import
 import { useAuth } from '@/context/AuthContext';
 
 const TajweedRuleCard: React.FC<{ rule: TajweedRule }> = ({ rule }) => {
