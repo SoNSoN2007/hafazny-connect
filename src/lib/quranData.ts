@@ -1,4 +1,3 @@
-
 import { SurahType, TajweedRule, ArabicLesson } from "@/types";
 
 export interface Surah {
@@ -195,7 +194,7 @@ export const surahs: Surah[] = [
   {
     id: 21,
     name: "Al-Anbiya",
-    arabicName: "الأنبياء",
+    arabicName: "الأن��ياء",
     englishName: "The Prophets",
     meaning: "The Prophets",
     verses: 112,
@@ -1056,15 +1055,11 @@ export const reciters = [
   { id: 'minshawi', name: 'Mohamed Siddiq El-Minshawi' }
 ];
 
-// Function to get audio URL for a specific surah and reciter
 export const getAudioUrl = (surahId: number, reciterId: string): string => {
-  // In a real application, this would point to actual audio files
-  // For now, returning a placeholder URL format
   const formattedSurahId = surahId.toString().padStart(3, '0');
   return `https://audio.qurancdn.com/${reciterId}/murattal/${formattedSurahId}.mp3`;
 };
 
-// Add missing tajweed rules
 export const tajweedRules: TajweedRule[] = [
   {
     id: 1,
@@ -1116,7 +1111,6 @@ export const tajweedRules: TajweedRule[] = [
   }
 ];
 
-// Add missing Arabic lessons
 export const arabicLessons: ArabicLesson[] = [
   {
     id: 1,
@@ -1124,7 +1118,9 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Learn the basic Arabic letters and their pronunciation",
     level: "beginner",
     duration: 30,
-    progress: 100
+    progress: 100,
+    category: "Basics",
+    content: "Start by learning the shapes and sounds of the Arabic alphabet. Each letter has multiple forms depending on its position in a word."
   },
   {
     id: 2,
@@ -1132,7 +1128,9 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Understanding Fatha, Kasra, and Damma",
     level: "beginner",
     duration: 25,
-    progress: 75
+    progress: 75,
+    category: "Basics",
+    content: "Arabic short vowels (called harakat) are written as marks above or below the consonants. Fatha (فَتْحَة) is a diagonal stroke above a letter, Kasra (كَسْرَة) is a diagonal stroke below, and Damma (ضَمَّة) is a small و above."
   },
   {
     id: 3,
@@ -1140,7 +1138,9 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Learning Alif, Waw, and Yaa as vowels",
     level: "beginner",
     duration: 25,
-    progress: 50
+    progress: 50,
+    category: "Basics",
+    content: "Arabic long vowels extend the sound of short vowels. The long vowel Alif (ا) extends Fatha, Waw (و) extends Damma, and Yaa (ي) extends Kasra."
   },
   {
     id: 4,
@@ -1148,7 +1148,9 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Understanding the absence of vowels and letter doubling",
     level: "beginner",
     duration: 20,
-    progress: 0
+    progress: 0,
+    category: "Basics",
+    content: "Sukoon (سُكُون) indicates absence of vowel, while Shaddah (شَدَّة) indicates doubled consonant sound."
   },
   {
     id: 5,
@@ -1156,7 +1158,9 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Essential Quranic words and their meanings",
     level: "intermediate",
     duration: 45,
-    progress: 0
+    progress: 0,
+    category: "Vocabulary",
+    content: "Learn the most common words used in the Quran, starting with those that appear hundreds of times throughout the text."
   },
   {
     id: 6,
@@ -1164,6 +1168,8 @@ export const arabicLessons: ArabicLesson[] = [
     description: "Introduction to Arabic sentence structure",
     level: "intermediate",
     duration: 40,
-    progress: 0
+    progress: 0,
+    category: "Grammar",
+    content: "Arabic sentences follow either verbal (verb-subject-object) or nominal (subject-predicate) structure. This lesson covers basic patterns and how to identify them."
   }
 ];

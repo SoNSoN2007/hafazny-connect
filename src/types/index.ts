@@ -17,4 +17,6 @@ export interface ArabicLesson {
   level: "beginner" | "intermediate" | "advanced";
   duration: number; // in minutes
   progress?: number;
+  category?: string; // Adding the missing property
+  content: string; // Adding the missing property
 }

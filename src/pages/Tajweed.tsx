@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Play, Mic, Award, BookMarked, BookText } from 'lucide-react';
-import { tajweedRules, TajweedRule } from '@/lib/quranData';
+import { tajweedRules } from '@/lib/quranData';
+import { TajweedRule } from '@/types'; // Import TajweedRule from types instead
 import { useAuth } from '@/context/AuthContext';
 
 const TajweedRuleCard: React.FC<{ rule: TajweedRule }> = ({ rule }) => {
