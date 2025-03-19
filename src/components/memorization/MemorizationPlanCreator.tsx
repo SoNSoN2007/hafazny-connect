@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Surahs, surahs } from '@/lib/quranData';
+import { surahs } from '@/lib/quranData'; // Fix 'Surahs' to 'surahs'
 import { useAuth } from '@/context/AuthContext';
 
 const formSchema = z.object({

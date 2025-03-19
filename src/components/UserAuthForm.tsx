@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getTranslation } from '@/lib/i18n';
@@ -19,6 +18,7 @@ const UserAuthForm: React.FC<UserAuthFormProps> = ({ type }) => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'student' as 'student' | 'teacher',
   });
   
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +29,6 @@ const UserAuthForm: React.FC<UserAuthFormProps> = ({ type }) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when field is changed
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -82,7 +81,7 @@ const UserAuthForm: React.FC<UserAuthFormProps> = ({ type }) => {
         });
         navigate('/dashboard');
       } else {
-        await register(formData.name, formData.email, formData.password);
+        await register(formData.name, formData.email, formData.password, formData.role);
         toast({
           title: "Account created!",
           description: "Your account has been successfully created",
@@ -183,23 +182,53 @@ const UserAuthForm: React.FC<UserAuthFormProps> = ({ type }) => {
         </div>
         
         {type === 'register' && (
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="confirmPassword">
-              {getTranslation('confirmPassword')}
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`input-field ${errors.confirmPassword ? 'border-red-500' : ''}`}
-              placeholder="••••••••"
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
-            )}
-          </div>
+          <>
+            <div>
+              <label className="block text-sm font-medium mb-1" htmlFor="confirmPassword">
+                {getTranslation('confirmPassword')}
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`input-field ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                placeholder="••••••••"
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Account Type</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div 
+                  className={`border rounded-md p-3 cursor-pointer transition-colors ${
+                    formData.role === 'student' 
+                      ? 'border-hafazny-blue bg-hafazny-blue/10' 
+                      : 'border-gray-300'
+                  }`}
+                  onClick={() => setFormData(prev => ({ ...prev, role: 'student' }))}
+                >
+                  <div className="font-medium mb-1">Student</div>
+                  <div className="text-xs text-gray-500">I want to learn and memorize Quran</div>
+                </div>
+                <div 
+                  className={`border rounded-md p-3 cursor-pointer transition-colors ${
+                    formData.role === 'teacher' 
+                      ? 'border-hafazny-blue bg-hafazny-blue/10' 
+                      : 'border-gray-300'
+                  }`}
+                  onClick={() => setFormData(prev => ({ ...prev, role: 'teacher' }))}
+                >
+                  <div className="font-medium mb-1">Teacher</div>
+                  <div className="text-xs text-gray-500">I can teach and help others</div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
         
         {type === 'login' && (

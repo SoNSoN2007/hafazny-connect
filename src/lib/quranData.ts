@@ -1,5 +1,5 @@
 
-import { SurahType } from "@/types";
+import { SurahType, TajweedRule, ArabicLesson } from "@/types";
 
 export interface Surah {
   id: number;
@@ -1063,3 +1063,107 @@ export const getAudioUrl = (surahId: number, reciterId: string): string => {
   const formattedSurahId = surahId.toString().padStart(3, '0');
   return `https://audio.qurancdn.com/${reciterId}/murattal/${formattedSurahId}.mp3`;
 };
+
+// Add missing tajweed rules
+export const tajweedRules: TajweedRule[] = [
+  {
+    id: 1,
+    name: "Ghunnah",
+    arabicName: "غُنَّة",
+    description: "Nasal sound when pronouncing Noon and Meem with Shaddah",
+    example: "إِنَّ",
+    color: "bg-blue-200"
+  },
+  {
+    id: 2,
+    name: "Idgham",
+    arabicName: "إدغام",
+    description: "Merging of letters when Noon Sakinah or Tanween is followed by certain letters",
+    example: "مَن يَعْمَلْ",
+    color: "bg-green-200"
+  },
+  {
+    id: 3,
+    name: "Ikhfa",
+    arabicName: "إخفاء",
+    description: "Partial sound of Noon Sakinah or Tanween when followed by specific letters",
+    example: "مِن كُلِّ",
+    color: "bg-yellow-200"
+  },
+  {
+    id: 4,
+    name: "Qalqalah",
+    arabicName: "قلقلة",
+    description: "Sound produced when pronouncing the letters ق ط ب ج د when they have sukoon",
+    example: "يَخْرُجُ",
+    color: "bg-purple-200"
+  },
+  {
+    id: 5,
+    name: "Idgham Meem",
+    arabicName: "إدغام الميم",
+    description: "Merging when Meem Sakinah is followed by another Meem",
+    example: "لَهُم مَّا",
+    color: "bg-pink-200"
+  },
+  {
+    id: 6,
+    name: "Ikhfa Shafawi",
+    arabicName: "إخفاء شفوي",
+    description: "Partial pronunciation of Meem Sakinah when followed by Baa",
+    example: "هُم بِالْآخِرَةِ",
+    color: "bg-orange-200"
+  }
+];
+
+// Add missing Arabic lessons
+export const arabicLessons: ArabicLesson[] = [
+  {
+    id: 1,
+    title: "Arabic Alphabet",
+    description: "Learn the basic Arabic letters and their pronunciation",
+    level: "beginner",
+    duration: 30,
+    progress: 100
+  },
+  {
+    id: 2,
+    title: "Short Vowels",
+    description: "Understanding Fatha, Kasra, and Damma",
+    level: "beginner",
+    duration: 25,
+    progress: 75
+  },
+  {
+    id: 3,
+    title: "Long Vowels",
+    description: "Learning Alif, Waw, and Yaa as vowels",
+    level: "beginner",
+    duration: 25,
+    progress: 50
+  },
+  {
+    id: 4,
+    title: "Sukoon and Shaddah",
+    description: "Understanding the absence of vowels and letter doubling",
+    level: "beginner",
+    duration: 20,
+    progress: 0
+  },
+  {
+    id: 5,
+    title: "Basic Vocabulary",
+    description: "Essential Quranic words and their meanings",
+    level: "intermediate",
+    duration: 45,
+    progress: 0
+  },
+  {
+    id: 6,
+    title: "Simple Grammar",
+    description: "Introduction to Arabic sentence structure",
+    level: "intermediate",
+    duration: 40,
+    progress: 0
+  }
+];
