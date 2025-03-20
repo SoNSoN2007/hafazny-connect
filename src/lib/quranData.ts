@@ -194,7 +194,7 @@ export const surahs: Surah[] = [
   {
     id: 21,
     name: "Al-Anbiya",
-    arabicName: "الأن���ياء",
+    arabicName: "الأن�����ياء",
     englishName: "The Prophets",
     meaning: "The Prophets",
     verses: 112,
@@ -1100,7 +1100,13 @@ export const getVerseText = (surahId: number, verseId: number): string => {
     return verses[verseId - 1] || verses[0];
   }
   
-  return `آية ${verseId} من سورة ${getSurahById(surahId)?.arabicName || ''}`;
+  const surah = getSurahById(surahId);
+  
+  if (verseId === 1 && surahId !== 9) { // Surah At-Tawbah (9) doesn't begin with Bismillah
+    return "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+  } else {
+    return `الآية رقم ${verseId} من سورة ${surah?.arabicName || ''} ﴿${verseId}﴾`;
+  }
 };
 
 export const tajweedRules: TajweedRule[] = [
