@@ -8,6 +8,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import VerseMemorization from './memorization/VerseMemorization';
 
 interface SurahDetailsProps {
   surah: Surah;
@@ -21,6 +22,7 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(80);
   const [selectedReciter, setSelectedReciter] = useState('mishary');
+  const [showMemorization, setShowMemorization] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Initialize audio element
@@ -127,6 +129,27 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
   
+  const startMemorizing = () => {
+    setShowMemorization(true);
+    // Pause current audio if playing
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+  
+  if (showMemorization) {
+    return (
+      <VerseMemorization
+        surahId={surah.id}
+        surahName={surah.name}
+        arabicName={surah.arabicName}
+        verseCount={surah.verses}
+        onClose={() => setShowMemorization(false)}
+      />
+    );
+  }
+  
   return (
     <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
       <CardContent className="p-6">
@@ -231,7 +254,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
         
         {/* Add memorization button */}
         <div className="mt-6 text-center">
-          <Button className="bg-hafazny-gold hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-hafazny-gold hover:bg-amber-600 text-white"
+            onClick={startMemorizing}
+          >
             Start Memorizing This Surah
           </Button>
         </div>

@@ -194,7 +194,7 @@ export const surahs: Surah[] = [
   {
     id: 21,
     name: "Al-Anbiya",
-    arabicName: "الأن��ياء",
+    arabicName: "الأن���ياء",
     englishName: "The Prophets",
     meaning: "The Prophets",
     verses: 112,
@@ -1057,7 +1057,22 @@ export const reciters = [
 
 export const getAudioUrl = (surahId: number, reciterId: string): string => {
   const formattedSurahId = surahId.toString().padStart(3, '0');
-  return `https://audio.qurancdn.com/${reciterId}/murattal/${formattedSurahId}.mp3`;
+  
+  const baseUrl = "https://audio.qurancdn.com/";
+  
+  const reciterPaths: Record<string, string> = {
+    'mishary': `${baseUrl}mishary/murattal/${formattedSurahId}.mp3`,
+    'sudais': `${baseUrl}sudais/murattal/${formattedSurahId}.mp3`,
+    'abdulbasit': `${baseUrl}abdulbasit/murattal/${formattedSurahId}.mp3`,
+    'shuraim': `${baseUrl}shuraim/murattal/${formattedSurahId}.mp3`,
+    'alghamdi': `${baseUrl}alghamdi/murattal/${formattedSurahId}.mp3`,
+    'dosari': `${baseUrl}dosari/murattal/${formattedSurahId}.mp3`,
+    'ajmi': `${baseUrl}ajmi/murattal/${formattedSurahId}.mp3`,
+    'husary': `${baseUrl}husary/murattal/${formattedSurahId}.mp3`,
+    'minshawi': `${baseUrl}minshawi/murattal/${formattedSurahId}.mp3`
+  };
+  
+  return reciterPaths[reciterId] || `${baseUrl}mishary/murattal/${formattedSurahId}.mp3`;
 };
 
 export const tajweedRules: TajweedRule[] = [
