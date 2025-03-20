@@ -4,11 +4,13 @@ import { Surah, reciters, getAudioUrl, getVerseText } from '@/lib/quranData';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, BookOpen, GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 import VerseMemorization from './memorization/VerseMemorization';
+import LearningFeatures from './learning/LearningFeatures';
 
 interface SurahDetailsProps {
   surah: Surah;
@@ -17,6 +19,7 @@ interface SurahDetailsProps {
 
 const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -24,8 +27,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const [selectedReciter, setSelectedReciter] = useState('mishary');
   const [currentVerse, setCurrentVerse] = useState(1);
   const [showMemorization, setShowMemorization] = useState(false);
+  const [showLearningFeatures, setShowLearningFeatures] = useState(false);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
+  const [currentVerseName, setCurrentVerseName] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Initialize audio element
@@ -60,6 +65,17 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       audio.removeEventListener('ended', () => {});
     };
   }, []);
+  
+  // Update verse text and name when verse changes
+  useEffect(() => {
+    const verseText = getVerseText(surah.id, currentVerse);
+    const verseParts = verseText.split(' - ');
+    if (verseParts.length > 1) {
+      setCurrentVerseName(verseParts[1]);
+    } else {
+      setCurrentVerseName(`الآية ${currentVerse}`);
+    }
+  }, [surah.id, currentVerse]);
   
   // Update audio source when reciter or verse changes
   useEffect(() => {
@@ -190,6 +206,33 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     }
   };
   
+  const showLearning = () => {
+    setShowLearningFeatures(true);
+    // Pause current audio if playing
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+  
+  const goToArabicLessons = () => {
+    navigate('/arabic');
+  };
+  
+  const goToTajweedLessons = () => {
+    navigate('/tajweed');
+  };
+  
+  if (showLearningFeatures) {
+    return (
+      <LearningFeatures
+        onClose={() => setShowLearningFeatures(false)}
+        goToArabic={goToArabicLessons}
+        goToTajweed={goToTajweedLessons}
+      />
+    );
+  }
+  
   if (showMemorization) {
     return (
       <VerseMemorization
@@ -232,9 +275,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           </div>
         </div>
         
-        {/* Current Verse Text */}
-        <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl">
-          <p>{getVerseText(surah.id, currentVerse)}</p>
+        {/* Current Verse Text and Name */}
+        <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose">
+          <p className="text-2xl mb-2">{getVerseText(surah.id, currentVerse).split(' - ')[0]}</p>
+          <p className="text-lg text-hafazny-gold">{currentVerseName}</p>
         </div>
         
         {/* Audio Player Controls */}
@@ -306,13 +350,30 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           </div>
         </div>
         
-        {/* Add memorization button */}
-        <div className="mt-6 text-center">
+        {/* Learning Features Buttons */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button 
             className="bg-hafazny-gold hover:bg-amber-600 text-white"
             onClick={startMemorizing}
           >
-            Start Memorizing This Surah
+            <BookOpen className="h-4 w-4 mr-2" />
+            Start Memorizing
+          </Button>
+          
+          <Button 
+            className="bg-hafazny-blue hover:bg-hafazny-navy text-white"
+            onClick={goToArabicLessons}
+          >
+            <GraduationCap className="h-4 w-4 mr-2" />
+            Learn Arabic
+          </Button>
+          
+          <Button 
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={goToTajweedLessons}
+          >
+            <BookOpen className="h-4 w-4 mr-2" />
+            Learn Tajweed
           </Button>
         </div>
       </CardContent>

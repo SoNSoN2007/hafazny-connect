@@ -194,7 +194,7 @@ export const surahs: Surah[] = [
   {
     id: 21,
     name: "Al-Anbiya",
-    arabicName: "الأن�����ياء",
+    arabicName: "الأنبياء",
     englishName: "The Prophets",
     meaning: "The Prophets",
     verses: 112,
@@ -1101,11 +1101,23 @@ export const getVerseText = (surahId: number, verseId: number): string => {
   }
   
   const surah = getSurahById(surahId);
+  const verseNames: Record<number, Record<number, string>> = {
+    1: {1: "الفاتحة - آية التسمية", 2: "الفاتحة - آية الحمد", 3: "الفاتحة - آية الرحمة", 4: "الفاتحة - آية الملك", 5: "الفاتحة - آية العبادة", 6: "الفاتحة - آية الهداية", 7: "الفاتحة - آية المنعم عليهم"},
+    2: {1: "البقرة - آية التسمية", 2: "البقرة - آية ألم", 3: "البقرة - آية الكتاب", 4: "البقرة - آية المؤمنين", 5: "البقرة - آية الإيمان"}
+  };
+  
+  // Get verse name if available
+  let verseName = "";
+  if (verseNames[surahId] && verseNames[surahId][verseId]) {
+    verseName = verseNames[surahId][verseId];
+  } else {
+    verseName = `${surah?.arabicName || ''} - الآية ${verseId}`;
+  }
   
   if (verseId === 1 && surahId !== 9) { // Surah At-Tawbah (9) doesn't begin with Bismillah
-    return "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+    return `بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ - ${verseName}`;
   } else {
-    return `الآية رقم ${verseId} من سورة ${surah?.arabicName || ''} ﴿${verseId}﴾`;
+    return `الآية رقم ${verseId} من سورة ${surah?.arabicName || ''} ﴿${verseId}﴾ - ${verseName}`;
   }
 };
 
