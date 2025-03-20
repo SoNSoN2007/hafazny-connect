@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(80);
   const [progress, setProgress] = useState(0);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
@@ -45,13 +47,16 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
+      setAudioLoaded(true);
     });
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
       setCurrentTime(0);
     });
     
-    audio.src = getAudioUrl(surahId, selectedReciter);
+    const audioUrl = getAudioUrl(surahId, selectedReciter);
+    console.log("Loading verse audio URL:", audioUrl);
+    audio.src = audioUrl;
     audio.volume = volume / 100;
     
     return () => {
@@ -67,9 +72,24 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
       const wasPlaying = isPlaying;
       audioRef.current.pause();
       setIsPlaying(false);
+      setAudioLoaded(false);
       
-      audioRef.current.src = getAudioUrl(surahId, selectedReciter);
+      const audioUrl = getAudioUrl(surahId, selectedReciter);
+      console.log("Changed reciter/verse, new URL:", audioUrl);
+      audioRef.current.src = audioUrl;
       audioRef.current.load();
+      
+      // Add error handling
+      const handleError = () => {
+        console.error("Error loading audio");
+        toast({
+          title: "Audio Error",
+          description: "Could not load audio file. Please try another reciter.",
+          variant: "destructive"
+        });
+      };
+      
+      audioRef.current.addEventListener('error', handleError);
       
       if (wasPlaying) {
         audioRef.current.play().then(() => {
@@ -83,6 +103,12 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
           });
         });
       }
+      
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener('error', handleError);
+        }
+      };
     }
   }, [selectedReciter, surahId, currentVerse, toast]);
   
@@ -102,8 +128,11 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play().catch(error => {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(error => {
           console.error("Error playing audio:", error);
           toast({
             title: "Error",
@@ -112,7 +141,6 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
           });
         });
       }
-      setIsPlaying(!isPlaying);
     }
   };
   
@@ -296,6 +324,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                   <Button 
                     className="rounded-full bg-hafazny-blue hover:bg-hafazny-navy w-12 h-12 flex items-center justify-center"
                     onClick={togglePlayPause}
+                    disabled={!audioLoaded}
                   >
                     {isPlaying ? (
                       <Pause className="h-6 w-6" />
@@ -345,6 +374,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                     variant="outline"
                     className="flex items-center justify-center space-x-2"
                     onClick={togglePlayPause}
+                    disabled={!audioLoaded}
                   >
                     {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     <span>{isPlaying ? 'Pause' : 'Listen Again'}</span>

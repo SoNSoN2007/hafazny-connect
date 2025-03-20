@@ -1058,21 +1058,21 @@ export const reciters = [
 export const getAudioUrl = (surahId: number, reciterId: string): string => {
   const formattedSurahId = surahId.toString().padStart(3, '0');
   
-  const baseUrl = "https://audio.qurancdn.com/";
+  const baseUrl = "https://everyayah.com/data/";
   
   const reciterPaths: Record<string, string> = {
-    'mishary': `${baseUrl}mishary/murattal/${formattedSurahId}.mp3`,
-    'sudais': `${baseUrl}sudais/murattal/${formattedSurahId}.mp3`,
-    'abdulbasit': `${baseUrl}abdulbasit/murattal/${formattedSurahId}.mp3`,
-    'shuraim': `${baseUrl}shuraim/murattal/${formattedSurahId}.mp3`,
-    'alghamdi': `${baseUrl}alghamdi/murattal/${formattedSurahId}.mp3`,
-    'dosari': `${baseUrl}dosari/murattal/${formattedSurahId}.mp3`,
-    'ajmi': `${baseUrl}ajmi/murattal/${formattedSurahId}.mp3`,
-    'husary': `${baseUrl}husary/murattal/${formattedSurahId}.mp3`,
-    'minshawi': `${baseUrl}minshawi/murattal/${formattedSurahId}.mp3`
+    'mishary': `${baseUrl}Alafasy_128kbps/${formattedSurahId}001.mp3`,
+    'sudais': `${baseUrl}Abdurrahmaan_As-Sudais_192kbps/${formattedSurahId}001.mp3`,
+    'abdulbasit': `${baseUrl}AbdulSamad_64kbps_QuranExplorer.Com/${formattedSurahId}001.mp3`,
+    'shuraim': `${baseUrl}Saood_ash-Shuraym_128kbps/${formattedSurahId}001.mp3`,
+    'alghamdi': `${baseUrl}Ghamadi_40kbps/${formattedSurahId}001.mp3`,
+    'dosari': `${baseUrl}Yasser_Ad-Dussary_128kbps/${formattedSurahId}001.mp3`,
+    'ajmi': `${baseUrl}Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net/${formattedSurahId}001.mp3`,
+    'husary': `${baseUrl}Husary_128kbps/${formattedSurahId}001.mp3`,
+    'minshawi': `${baseUrl}Minshawy_Murattal_128kbps/${formattedSurahId}001.mp3`
   };
   
-  return reciterPaths[reciterId] || `${baseUrl}mishary/murattal/${formattedSurahId}.mp3`;
+  return reciterPaths[reciterId] || `${baseUrl}Alafasy_128kbps/${formattedSurahId}001.mp3`;
 };
 
 export const tajweedRules: TajweedRule[] = [
@@ -1188,3 +1188,4 @@ export const arabicLessons: ArabicLesson[] = [
     content: "Arabic sentences follow either verbal (verb-subject-object) or nominal (subject-predicate) structure. This lesson covers basic patterns and how to identify them."
   }
 ];
+

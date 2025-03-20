@@ -23,6 +23,7 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const [volume, setVolume] = useState(80);
   const [selectedReciter, setSelectedReciter] = useState('mishary');
   const [showMemorization, setShowMemorization] = useState(false);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Initialize audio element
@@ -34,6 +35,7 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
+      setAudioLoaded(true);
     });
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
@@ -41,7 +43,9 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     });
     
     // Set initial source
-    audio.src = getAudioUrl(surah.id, selectedReciter);
+    const audioUrl = getAudioUrl(surah.id, selectedReciter);
+    console.log("Loading audio URL:", audioUrl);
+    audio.src = audioUrl;
     audio.volume = volume / 100;
     
     return () => {
@@ -58,9 +62,24 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       const wasPlaying = isPlaying;
       audioRef.current.pause();
       setIsPlaying(false);
+      setAudioLoaded(false);
       
-      audioRef.current.src = getAudioUrl(surah.id, selectedReciter);
+      const audioUrl = getAudioUrl(surah.id, selectedReciter);
+      console.log("Changed reciter, new URL:", audioUrl);
+      audioRef.current.src = audioUrl;
       audioRef.current.load();
+      
+      // Add error handling
+      const handleError = () => {
+        console.error("Error loading audio");
+        toast({
+          title: "Audio Error",
+          description: "Could not load audio file. Please try another reciter.",
+          variant: "destructive"
+        });
+      };
+      
+      audioRef.current.addEventListener('error', handleError);
       
       if (wasPlaying) {
         audioRef.current.play().then(() => {
@@ -74,8 +93,14 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           });
         });
       }
+      
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener('error', handleError);
+        }
+      };
     }
-  }, [selectedReciter, surah.id]);
+  }, [selectedReciter, surah.id, toast]);
   
   // Update volume when changed
   useEffect(() => {
@@ -94,17 +119,19 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play().catch(error => {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(error => {
           console.error("Error playing audio:", error);
           toast({
             title: "Error",
-            description: "Could not play audio. Please try again.",
+            description: "Could not play audio. Please try another reciter.",
             variant: "destructive"
           });
         });
       }
-      setIsPlaying(!isPlaying);
     }
   };
   
@@ -217,6 +244,7 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
               <Button 
                 className="rounded-full bg-hafazny-blue hover:bg-hafazny-navy w-12 h-12 flex items-center justify-center"
                 onClick={togglePlayPause}
+                disabled={!audioLoaded}
               >
                 {isPlaying ? (
                   <Pause className="h-6 w-6" />
