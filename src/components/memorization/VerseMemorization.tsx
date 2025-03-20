@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,12 +38,10 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
 
-  // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
     
-    // Event listeners
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
@@ -54,7 +51,6 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
       setCurrentTime(0);
     });
     
-    // Set initial source - this would be verse-specific in a real implementation
     audio.src = getAudioUrl(surahId, selectedReciter);
     audio.volume = volume / 100;
     
@@ -66,14 +62,12 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
     };
   }, [surahId, selectedReciter]);
   
-  // Update audio source when reciter changes
   useEffect(() => {
     if (audioRef.current) {
       const wasPlaying = isPlaying;
       audioRef.current.pause();
       setIsPlaying(false);
       
-      // In a real implementation, this would load the specific verse
       audioRef.current.src = getAudioUrl(surahId, selectedReciter);
       audioRef.current.load();
       
@@ -92,7 +86,6 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
     }
   }, [selectedReciter, surahId, currentVerse, toast]);
   
-  // Update volume when changed
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
@@ -177,15 +170,12 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
       };
       
       mediaRecorder.onstop = () => {
-        // This would be where we'd send the recording to a server for comparison
-        // For this prototype, we'll simulate a response
         toast({
           title: "Recording saved",
           description: "Your recitation has been processed.",
         });
         
         setTimeout(() => {
-          // Simulate feedback - in a real app, this would come from an API
           const randomScore = Math.floor(Math.random() * 100);
           if (randomScore > 70) {
             toast({
@@ -272,7 +262,6 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                 </div>
                 
                 <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl min-h-32 flex items-center justify-center">
-                  {/* This would contain the actual verse text */}
                   <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
                 </div>
                 
@@ -340,7 +329,6 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
             <TabsContent value="memorize">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
                 <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl min-h-32 flex items-center justify-center">
-                  {/* This would contain the actual verse text */}
                   <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
                 </div>
                 
@@ -419,7 +407,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
             </div>
             
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm" onClick={prevVerse} disabled={currentVerse === l}>
+              <Button variant="outline" size="sm" onClick={prevVerse} disabled={currentVerse === 1}>
                 <SkipBack className="h-4 w-4 mr-1" /> Previous
               </Button>
               <Button size="sm" onClick={nextVerse} disabled={currentVerse === verseCount}>
