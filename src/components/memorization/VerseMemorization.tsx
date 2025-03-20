@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 import { Play, Pause, SkipForward, SkipBack, Mic, Volume2, BookOpen, Award, CheckCircle, XCircle } from 'lucide-react';
-import { reciters, getAudioUrl } from '@/lib/quranData';
+import { reciters, getAudioUrl, getVerseText } from '@/lib/quranData';
 
 interface VerseMemorizationProps {
   surahId: number;
@@ -29,6 +29,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   const { toast } = useToast();
   const [selectedReciter, setSelectedReciter] = useState('mishary');
   const [currentVerse, setCurrentVerse] = useState(1);
+  const [verseText, setVerseText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -36,10 +37,17 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   const [volume, setVolume] = useState(80);
   const [progress, setProgress] = useState(0);
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
 
+  // Load initial verse text
+  useEffect(() => {
+    setVerseText(getVerseText(surahId, currentVerse));
+  }, [surahId, currentVerse]);
+
+  // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
@@ -48,16 +56,14 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
       setAudioLoaded(true);
+      setIsAudioLoading(false);
     });
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
       setCurrentTime(0);
     });
     
-    const audioUrl = getAudioUrl(surahId, selectedReciter);
-    console.log("Loading verse audio URL:", audioUrl);
-    audio.src = audioUrl;
-    audio.volume = volume / 100;
+    loadVerseAudio();
     
     return () => {
       audio.pause();
@@ -65,32 +71,45 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
       audio.removeEventListener('loadedmetadata', () => {});
       audio.removeEventListener('ended', () => {});
     };
-  }, [surahId, selectedReciter]);
+  }, []);
   
+  // Update audio when verse or reciter changes
   useEffect(() => {
+    loadVerseAudio();
+  }, [selectedReciter, surahId, currentVerse]);
+  
+  // Load audio for current verse
+  const loadVerseAudio = () => {
     if (audioRef.current) {
-      const wasPlaying = isPlaying;
-      audioRef.current.pause();
-      setIsPlaying(false);
+      setIsAudioLoading(true);
       setAudioLoaded(false);
+      const wasPlaying = isPlaying;
       
-      const audioUrl = getAudioUrl(surahId, selectedReciter);
-      console.log("Changed reciter/verse, new URL:", audioUrl);
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      
+      const audioUrl = getAudioUrl(surahId, selectedReciter, currentVerse);
+      console.log(`Loading verse ${currentVerse} audio URL:`, audioUrl);
+      
       audioRef.current.src = audioUrl;
       audioRef.current.load();
       
       // Add error handling
-      const handleError = () => {
-        console.error("Error loading audio");
+      const handleError = (e: Event) => {
+        console.error("Error loading audio", e);
+        setIsAudioLoading(false);
         toast({
           title: "Audio Error",
-          description: "Could not load audio file. Please try another reciter.",
+          description: `Could not load audio for verse ${currentVerse}. Please try another reciter.`,
           variant: "destructive"
         });
       };
       
-      audioRef.current.addEventListener('error', handleError);
+      audioRef.current.addEventListener('error', handleError, { once: true });
       
+      // Play audio if it was playing before
       if (wasPlaying) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
@@ -103,15 +122,10 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
           });
         });
       }
-      
-      return () => {
-        if (audioRef.current) {
-          audioRef.current.removeEventListener('error', handleError);
-        }
-      };
     }
-  }, [selectedReciter, surahId, currentVerse, toast]);
+  };
   
+  // Update volume when changed
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
@@ -167,8 +181,20 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   
   const nextVerse = () => {
     if (currentVerse < verseCount) {
-      setCurrentVerse(currentVerse + 1);
-      setProgress(Math.floor((currentVerse / verseCount) * 100));
+      // Pause current audio if playing
+      if (isPlaying && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      
+      // Move to next verse
+      const newVerse = currentVerse + 1;
+      setCurrentVerse(newVerse);
+      setVerseText(getVerseText(surahId, newVerse));
+      setProgress(Math.floor((newVerse / verseCount) * 100));
+      
+      // Reset time
+      setCurrentTime(0);
     } else {
       toast({
         title: "Congratulations!",
@@ -179,8 +205,20 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
   
   const prevVerse = () => {
     if (currentVerse > 1) {
-      setCurrentVerse(currentVerse - 1);
-      setProgress(Math.floor(((currentVerse - 2) / verseCount) * 100));
+      // Pause current audio if playing
+      if (isPlaying && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      
+      // Move to previous verse
+      const newVerse = currentVerse - 1;
+      setCurrentVerse(newVerse);
+      setVerseText(getVerseText(surahId, newVerse));
+      setProgress(Math.floor(((newVerse - 1) / verseCount) * 100));
+      
+      // Reset time
+      setCurrentTime(0);
     }
   };
   
@@ -290,7 +328,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                 </div>
                 
                 <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl min-h-32 flex items-center justify-center">
-                  <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                  <p>{verseText}</p>
                 </div>
                 
                 <div className="flex items-center justify-between mb-4">
@@ -317,6 +355,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                     variant="ghost"
                     className="rounded-full p-2"
                     onClick={prevVerse}
+                    disabled={currentVerse === 1}
                   >
                     <SkipBack className="h-5 w-5" />
                   </Button>
@@ -324,7 +363,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                   <Button 
                     className="rounded-full bg-hafazny-blue hover:bg-hafazny-navy w-12 h-12 flex items-center justify-center"
                     onClick={togglePlayPause}
-                    disabled={!audioLoaded}
+                    disabled={isAudioLoading}
                   >
                     {isPlaying ? (
                       <Pause className="h-6 w-6" />
@@ -337,6 +376,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                     variant="ghost"
                     className="rounded-full p-2"
                     onClick={nextVerse}
+                    disabled={currentVerse === verseCount}
                   >
                     <SkipForward className="h-5 w-5" />
                   </Button>
@@ -358,7 +398,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
             <TabsContent value="memorize">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
                 <div className="bg-white dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl min-h-32 flex items-center justify-center">
-                  <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                  <p>{verseText}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -374,7 +414,7 @@ const VerseMemorization: React.FC<VerseMemorizationProps> = ({
                     variant="outline"
                     className="flex items-center justify-center space-x-2"
                     onClick={togglePlayPause}
-                    disabled={!audioLoaded}
+                    disabled={isAudioLoading}
                   >
                     {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     <span>{isPlaying ? 'Pause' : 'Listen Again'}</span>

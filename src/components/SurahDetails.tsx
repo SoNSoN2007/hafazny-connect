@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Surah, reciters, getAudioUrl } from '@/lib/quranData';
+import { Surah, reciters, getAudioUrl, getVerseText } from '@/lib/quranData';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,8 +22,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(80);
   const [selectedReciter, setSelectedReciter] = useState('mishary');
+  const [currentVerse, setCurrentVerse] = useState(1);
   const [showMemorization, setShowMemorization] = useState(false);
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Initialize audio element
@@ -36,17 +38,20 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
       setAudioLoaded(true);
+      setIsAudioLoading(false);
     });
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      
+      // Auto-advance to next verse when audio ends
+      if (currentVerse < surah.verses) {
+        setCurrentVerse(prev => prev + 1);
+      }
     });
     
     // Set initial source
-    const audioUrl = getAudioUrl(surah.id, selectedReciter);
-    console.log("Loading audio URL:", audioUrl);
-    audio.src = audioUrl;
-    audio.volume = volume / 100;
+    loadVerseAudio();
     
     return () => {
       audio.pause();
@@ -54,33 +59,45 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       audio.removeEventListener('loadedmetadata', () => {});
       audio.removeEventListener('ended', () => {});
     };
-  }, [surah.id, selectedReciter]);
+  }, []);
   
-  // Update audio source when reciter changes
+  // Update audio source when reciter or verse changes
   useEffect(() => {
+    loadVerseAudio();
+  }, [selectedReciter, surah.id, currentVerse]);
+  
+  // Load audio for current verse
+  const loadVerseAudio = () => {
     if (audioRef.current) {
-      const wasPlaying = isPlaying;
-      audioRef.current.pause();
-      setIsPlaying(false);
+      setIsAudioLoading(true);
       setAudioLoaded(false);
+      const wasPlaying = isPlaying;
       
-      const audioUrl = getAudioUrl(surah.id, selectedReciter);
-      console.log("Changed reciter, new URL:", audioUrl);
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      
+      const audioUrl = getAudioUrl(surah.id, selectedReciter, currentVerse);
+      console.log(`Loading audio URL for surah ${surah.id}, verse ${currentVerse}:`, audioUrl);
+      
       audioRef.current.src = audioUrl;
       audioRef.current.load();
       
       // Add error handling
-      const handleError = () => {
-        console.error("Error loading audio");
+      const handleError = (e: Event) => {
+        console.error("Error loading audio", e);
+        setIsAudioLoading(false);
         toast({
           title: "Audio Error",
-          description: "Could not load audio file. Please try another reciter.",
+          description: `Could not load audio for verse ${currentVerse}. Please try another reciter.`,
           variant: "destructive"
         });
       };
       
-      audioRef.current.addEventListener('error', handleError);
+      audioRef.current.addEventListener('error', handleError, { once: true });
       
+      // Restore playback state
       if (wasPlaying) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
@@ -88,19 +105,13 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           console.error("Error playing audio:", error);
           toast({
             title: "Error",
-            description: "Could not play audio. Please try again.",
+            description: "Could not play audio. Please try another reciter.",
             variant: "destructive"
           });
         });
       }
-      
-      return () => {
-        if (audioRef.current) {
-          audioRef.current.removeEventListener('error', handleError);
-        }
-      };
     }
-  }, [selectedReciter, surah.id, toast]);
+  };
   
   // Update volume when changed
   useEffect(() => {
@@ -156,6 +167,20 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
   
+  const nextVerse = () => {
+    if (currentVerse < surah.verses) {
+      setCurrentVerse(prev => prev + 1);
+      setCurrentTime(0);
+    }
+  };
+  
+  const prevVerse = () => {
+    if (currentVerse > 1) {
+      setCurrentVerse(prev => prev - 1);
+      setCurrentTime(0);
+    }
+  };
+  
   const startMemorizing = () => {
     setShowMemorization(true);
     // Pause current audio if playing
@@ -188,7 +213,9 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
               <Badge variant="outline" className="ml-2">{surah.type}</Badge>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-1">{surah.englishName} - {surah.meaning}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">{surah.verses} verses</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              {surah.verses} verses • Verse {currentVerse}/{surah.verses}
+            </p>
           </div>
           
           <div className="mt-4 md:mt-0">
@@ -203,6 +230,11 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        
+        {/* Current Verse Text */}
+        <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose text-2xl">
+          <p>{getVerseText(surah.id, currentVerse)}</p>
         </div>
         
         {/* Audio Player Controls */}
@@ -232,11 +264,8 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
                 size="sm" 
                 variant="ghost"
                 className="rounded-full p-2"
-                onClick={() => {
-                  if (audioRef.current) {
-                    audioRef.current.currentTime = Math.max(0, currentTime - 10);
-                  }
-                }}
+                onClick={prevVerse}
+                disabled={currentVerse === 1}
               >
                 <SkipBack className="h-5 w-5" />
               </Button>
@@ -244,7 +273,7 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
               <Button 
                 className="rounded-full bg-hafazny-blue hover:bg-hafazny-navy w-12 h-12 flex items-center justify-center"
                 onClick={togglePlayPause}
-                disabled={!audioLoaded}
+                disabled={isAudioLoading}
               >
                 {isPlaying ? (
                   <Pause className="h-6 w-6" />
@@ -257,11 +286,8 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
                 size="sm" 
                 variant="ghost"
                 className="rounded-full p-2"
-                onClick={() => {
-                  if (audioRef.current) {
-                    audioRef.current.currentTime = Math.min(duration, currentTime + 10);
-                  }
-                }}
+                onClick={nextVerse}
+                disabled={currentVerse === surah.verses}
               >
                 <SkipForward className="h-5 w-5" />
               </Button>

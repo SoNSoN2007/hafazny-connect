@@ -1055,24 +1055,52 @@ export const reciters = [
   { id: 'minshawi', name: 'Mohamed Siddiq El-Minshawi' }
 ];
 
-export const getAudioUrl = (surahId: number, reciterId: string): string => {
+export const getAudioUrl = (surahId: number, reciterId: string, verseId: number = 1): string => {
   const formattedSurahId = surahId.toString().padStart(3, '0');
+  const formattedVerseId = verseId.toString().padStart(3, '0');
   
   const baseUrl = "https://everyayah.com/data/";
   
   const reciterPaths: Record<string, string> = {
-    'mishary': `${baseUrl}Alafasy_128kbps/${formattedSurahId}001.mp3`,
-    'sudais': `${baseUrl}Abdurrahmaan_As-Sudais_192kbps/${formattedSurahId}001.mp3`,
-    'abdulbasit': `${baseUrl}AbdulSamad_64kbps_QuranExplorer.Com/${formattedSurahId}001.mp3`,
-    'shuraim': `${baseUrl}Saood_ash-Shuraym_128kbps/${formattedSurahId}001.mp3`,
-    'alghamdi': `${baseUrl}Ghamadi_40kbps/${formattedSurahId}001.mp3`,
-    'dosari': `${baseUrl}Yasser_Ad-Dussary_128kbps/${formattedSurahId}001.mp3`,
-    'ajmi': `${baseUrl}Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net/${formattedSurahId}001.mp3`,
-    'husary': `${baseUrl}Husary_128kbps/${formattedSurahId}001.mp3`,
-    'minshawi': `${baseUrl}Minshawy_Murattal_128kbps/${formattedSurahId}001.mp3`
+    'mishary': `${baseUrl}Alafasy_128kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'sudais': `${baseUrl}Abdurrahmaan_As-Sudais_192kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'abdulbasit': `${baseUrl}AbdulSamad_64kbps_QuranExplorer.Com/${formattedSurahId}${formattedVerseId}.mp3`,
+    'shuraim': `${baseUrl}Saood_ash-Shuraym_128kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'alghamdi': `${baseUrl}Ghamadi_40kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'dosari': `${baseUrl}Yasser_Ad-Dussary_128kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'ajmi': `${baseUrl}Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net/${formattedSurahId}${formattedVerseId}.mp3`,
+    'husary': `${baseUrl}Husary_128kbps/${formattedSurahId}${formattedVerseId}.mp3`,
+    'minshawi': `${baseUrl}Minshawy_Murattal_128kbps/${formattedSurahId}${formattedVerseId}.mp3`
   };
   
-  return reciterPaths[reciterId] || `${baseUrl}Alafasy_128kbps/${formattedSurahId}001.mp3`;
+  return reciterPaths[reciterId] || `${baseUrl}Alafasy_128kbps/${formattedSurahId}${formattedVerseId}.mp3`;
+};
+
+export const getVerseText = (surahId: number, verseId: number): string => {
+  if (surahId === 1) {
+    const verses = [
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+      "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿١﴾",
+      "الرَّحْمَٰنِ الرَّحِيمِ ﴿٢﴾",
+      "مَالِكِ يَوْمِ الدِّينِ ﴿٣﴾",
+      "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٤﴾",
+      "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٥﴾",
+      "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ﴿٦﴾"
+    ];
+    return verses[verseId - 1] || verses[0];
+  } else if (surahId === 2 && verseId <= 5) {
+    const verses = [
+      "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+      "الم ﴿١﴾",
+      "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ ﴿٢﴾",
+      "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ ﴿٣﴾",
+      "وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ ﴿٤﴾",
+      "أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ ۖ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ ﴿٥﴾"
+    ];
+    return verses[verseId - 1] || verses[0];
+  }
+  
+  return `آية ${verseId} من سورة ${getSurahById(surahId)?.arabicName || ''}`;
 };
 
 export const tajweedRules: TajweedRule[] = [
@@ -1188,4 +1216,3 @@ export const arabicLessons: ArabicLesson[] = [
     content: "Arabic sentences follow either verbal (verb-subject-object) or nominal (subject-predicate) structure. This lesson covers basic patterns and how to identify them."
   }
 ];
-
