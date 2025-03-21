@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -11,14 +10,58 @@ import { Badge } from '@/components/ui/badge';
 import { GraduationCap, BookOpen, Languages, MessageCircle, FileText, Globe, Check, Trophy } from 'lucide-react';
 import { arabicLessons } from '@/lib/quranData';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from "@/components/ui/use-toast";
 
 const Arabic: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedLevel, setSelectedLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
 
   // Filter lessons by selected level
   const filteredLessons = arabicLessons.filter(lesson => lesson.level === selectedLevel);
+
+  const handleStartLesson = (lessonType: string) => {
+    switch (lessonType) {
+      case 'alphabet':
+        navigate('/learning/arabic-alphabet');
+        break;
+      case 'grammar':
+        navigate('/learning/grammar');
+        break;
+      case 'vocabulary':
+        navigate('/learning/vocabulary');
+        break;
+      default:
+        toast({
+          title: "Coming Soon",
+          description: "This lesson will be available soon!",
+        });
+    }
+  };
+
+  const handleOpenVocabulary = () => {
+    navigate('/learning/vocabulary');
+  };
+
+  const handleStartPractice = () => {
+    if (isAuthenticated) {
+      toast({
+        title: "Starting Practice",
+        description: "Redirecting to practice session...",
+      });
+      setTimeout(() => navigate('/learning/vocabulary'), 1000);
+    } else {
+      navigate('/auth/login');
+    }
+  };
+
+  const handleDownloadResource = (resourceName: string) => {
+    toast({
+      title: `Downloading ${resourceName}`,
+      description: "Your download will begin shortly.",
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,7 +76,10 @@ const Arabic: React.FC = () => {
                 <p className="text-lg opacity-90 mb-6">
                   Master the language of the Quran with our specialized Arabic courses designed for Quran readers and memorizers.
                 </p>
-                <Button className="bg-white text-hafazny-blue px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors">
+                <Button 
+                  className="bg-white text-hafazny-blue px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
+                  onClick={() => handleStartLesson('alphabet')}
+                >
                   Start Learning
                 </Button>
               </div>
@@ -139,7 +185,29 @@ const Arabic: React.FC = () => {
                     </p>
                   </CardContent>
                   <CardFooter className="bg-gray-50 dark:bg-gray-800">
-                    <Button className="w-full">Start Lesson</Button>
+                    <Button 
+                      className="w-full" 
+                      onClick={() => {
+                        switch (lesson.category) {
+                          case 'alphabet':
+                            navigate('/learning/arabic-alphabet');
+                            break;
+                          case 'grammar':
+                            navigate('/learning/grammar');
+                            break;
+                          case 'vocabulary':
+                            navigate('/learning/vocabulary');
+                            break;
+                          default:
+                            toast({
+                              title: "Coming Soon",
+                              description: "This lesson will be available soon!",
+                            });
+                        }
+                      }}
+                    >
+                      Start Lesson
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -187,7 +255,7 @@ const Arabic: React.FC = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Continue</Button>
+                    <Button className="w-full" onClick={() => handleStartLesson('alphabet')}>Continue</Button>
                   </CardFooter>
                 </Card>
 
@@ -217,7 +285,7 @@ const Arabic: React.FC = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Continue</Button>
+                    <Button className="w-full" onClick={() => handleStartLesson('grammar')}>Continue</Button>
                   </CardFooter>
                 </Card>
 
@@ -247,7 +315,7 @@ const Arabic: React.FC = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Continue</Button>
+                    <Button className="w-full" onClick={() => handleStartLesson('vocabulary')}>Continue</Button>
                   </CardFooter>
                 </Card>
               </div>
@@ -278,7 +346,7 @@ const Arabic: React.FC = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="justify-center border-t">
-                      <Button variant="ghost">View All Words</Button>
+                      <Button variant="ghost" onClick={handleOpenVocabulary}>View All Words</Button>
                     </CardFooter>
                   </Card>
                 </div>
@@ -295,7 +363,7 @@ const Arabic: React.FC = () => {
                           <div>
                             <h4 className="font-medium">Flashcards</h4>
                             <p className="text-sm text-gray-600 mb-3">Practice vocabulary with spaced repetition</p>
-                            <Button size="sm" variant="outline">Start Practice</Button>
+                            <Button size="sm" variant="outline" onClick={handleOpenVocabulary}>Start Practice</Button>
                           </div>
                         </div>
                       </CardContent>
@@ -310,7 +378,7 @@ const Arabic: React.FC = () => {
                           <div>
                             <h4 className="font-medium">Word Context</h4>
                             <p className="text-sm text-gray-600 mb-3">See how words are used in the Quran</p>
-                            <Button size="sm" variant="outline">Explore</Button>
+                            <Button size="sm" variant="outline" onClick={handleOpenVocabulary}>Explore</Button>
                           </div>
                         </div>
                       </CardContent>
@@ -325,7 +393,7 @@ const Arabic: React.FC = () => {
                           <div>
                             <h4 className="font-medium">Root Explorer</h4>
                             <p className="text-sm text-gray-600 mb-3">Understand word roots and derivations</p>
-                            <Button size="sm" variant="outline">Explore</Button>
+                            <Button size="sm" variant="outline" onClick={handleOpenVocabulary}>Explore</Button>
                           </div>
                         </div>
                       </CardContent>
@@ -350,7 +418,7 @@ const Arabic: React.FC = () => {
                         <CardDescription>Practice reading Arabic text</CardDescription>
                       </CardHeader>
                       <CardFooter>
-                        <Button className="w-full">Start</Button>
+                        <Button className="w-full" onClick={() => handleStartPractice()}>Start</Button>
                       </CardFooter>
                     </Card>
                     <Card>
@@ -359,7 +427,7 @@ const Arabic: React.FC = () => {
                         <CardDescription>Improve your listening skills</CardDescription>
                       </CardHeader>
                       <CardFooter>
-                        <Button className="w-full">Start</Button>
+                        <Button className="w-full" onClick={() => handleStartPractice()}>Start</Button>
                       </CardFooter>
                     </Card>
                     <Card>
@@ -368,7 +436,7 @@ const Arabic: React.FC = () => {
                         <CardDescription>Test your translation skills</CardDescription>
                       </CardHeader>
                       <CardFooter>
-                        <Button className="w-full">Start</Button>
+                        <Button className="w-full" onClick={() => handleStartPractice()}>Start</Button>
                       </CardFooter>
                     </Card>
                   </div>
@@ -396,7 +464,7 @@ const Arabic: React.FC = () => {
                             <Badge>PDF</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Comprehensive guide to Arabic grammar for Quran students</p>
-                          <Button size="sm" variant="outline">Download</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleDownloadResource('Arabic Grammar Handbook')}>Download</Button>
                         </div>
                         <div className="p-4">
                           <div className="flex justify-between items-start mb-2">
@@ -404,7 +472,7 @@ const Arabic: React.FC = () => {
                             <Badge>PDF</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Most common words in the Quran with translations</p>
-                          <Button size="sm" variant="outline">Download</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleDownloadResource('Vocabulary Lists')}>Download</Button>
                         </div>
                         <div className="p-4">
                           <div className="flex justify-between items-start mb-2">
@@ -412,7 +480,7 @@ const Arabic: React.FC = () => {
                             <Badge>PDF</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Worksheets for practicing Arabic writing</p>
-                          <Button size="sm" variant="outline">Download</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleDownloadResource('Writing Practice Sheets')}>Download</Button>
                         </div>
                       </div>
                     </CardContent>
@@ -430,7 +498,7 @@ const Arabic: React.FC = () => {
                             <Badge>Audio</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Clear audio of correct Arabic letter pronunciation</p>
-                          <Button size="sm" variant="outline">Listen</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleStartLesson('alphabet')}>Listen</Button>
                         </div>
                         <div className="p-4">
                           <div className="flex justify-between items-start mb-2">
@@ -438,7 +506,7 @@ const Arabic: React.FC = () => {
                             <Badge>Audio</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Essential Arabic phrases with audio</p>
-                          <Button size="sm" variant="outline">Listen</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleStartLesson('vocabulary')}>Listen</Button>
                         </div>
                         <div className="p-4">
                           <div className="flex justify-between items-start mb-2">
@@ -446,7 +514,7 @@ const Arabic: React.FC = () => {
                             <Badge>Audio</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">Selected verses with word-by-word translation</p>
-                          <Button size="sm" variant="outline">Listen</Button>
+                          <Button size="sm" variant="outline" onClick={() => navigate('/quran')}>Listen</Button>
                         </div>
                       </div>
                     </CardContent>
@@ -464,7 +532,7 @@ const Arabic: React.FC = () => {
                 <p className="mb-6 opacity-90">
                   Learn Arabic with a personal tutor through live one-on-one sessions. Our tutors are native Arabic speakers specializing in teaching Quranic Arabic.
                 </p>
-                <Button className="bg-white text-amber-600 hover:bg-white/90">
+                <Button className="bg-white text-amber-600 hover:bg-white/90" onClick={() => navigate('/community')}>
                   Find a Tutor
                 </Button>
               </div>
@@ -485,3 +553,4 @@ const Arabic: React.FC = () => {
 };
 
 export default Arabic;
+

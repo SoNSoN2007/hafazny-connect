@@ -12,8 +12,29 @@ import { BookOpen, Play, Mic, Award, BookMarked, BookText } from 'lucide-react';
 import { tajweedRules } from '@/lib/quranData';
 import { TajweedRule } from '@/types';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const TajweedRuleCard: React.FC<{ rule: TajweedRule }> = ({ rule }) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handlePlayAudio = () => {
+    toast({
+      title: "Playing audio",
+      description: `Playing example for ${rule.name}`,
+    });
+    // In a real implementation, this would play audio from a source
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(rule.example);
+      utterance.lang = 'ar-SA';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+  
+  const handleLearnMore = () => {
+    navigate('/learning/tajweed-lesson');
+  };
+  
   return (
     <Card className="h-full">
       <CardHeader>
@@ -30,8 +51,8 @@ const TajweedRuleCard: React.FC<{ rule: TajweedRule }> = ({ rule }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button size="sm" variant="outline">Learn More</Button>
-        <Button size="sm">
+        <Button size="sm" variant="outline" onClick={handleLearnMore}>Learn More</Button>
+        <Button size="sm" onClick={handlePlayAudio}>
           <Play className="mr-2 h-4 w-4" /> Listen
         </Button>
       </CardFooter>
@@ -42,7 +63,20 @@ const TajweedRuleCard: React.FC<{ rule: TajweedRule }> = ({ rule }) => {
 const Tajweed: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [progress, setProgress] = useState(30); // Mock progress
+
+  const handleStartLesson = () => {
+    navigate('/learning/tajweed-lesson');
+  };
+
+  const handleStartRecording = () => {
+    if (isAuthenticated) {
+      navigate('/learning/tajweed-practice');
+    } else {
+      navigate('/auth/login');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -57,7 +91,10 @@ const Tajweed: React.FC = () => {
                 <p className="text-lg opacity-90 mb-6">
                   Master the art of Quranic recitation with our comprehensive Tajweed courses and interactive lessons.
                 </p>
-                <Button className="bg-white text-hafazny-blue px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors">
+                <Button 
+                  className="bg-white text-hafazny-blue px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
+                  onClick={handleStartLesson}
+                >
                   Start Learning
                 </Button>
               </div>
@@ -160,7 +197,7 @@ const Tajweed: React.FC = () => {
                     <p className="mt-4 text-sm text-gray-600">Duration: 20 minutes</p>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Continue</Button>
+                    <Button className="w-full" onClick={handleStartLesson}>Continue</Button>
                   </CardFooter>
                 </Card>
 
@@ -178,7 +215,7 @@ const Tajweed: React.FC = () => {
                     <p className="mt-4 text-sm text-gray-600">Duration: 30 minutes</p>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Continue</Button>
+                    <Button className="w-full" onClick={handleStartLesson}>Continue</Button>
                   </CardFooter>
                 </Card>
 
@@ -196,7 +233,7 @@ const Tajweed: React.FC = () => {
                     <p className="mt-4 text-sm text-gray-600">Duration: 25 minutes</p>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" variant="outline">Start Lesson</Button>
+                    <Button className="w-full" variant="outline" onClick={handleStartLesson}>Start Lesson</Button>
                   </CardFooter>
                 </Card>
               </div>
@@ -211,7 +248,11 @@ const Tajweed: React.FC = () => {
                 </p>
                 {isAuthenticated ? (
                   <div className="flex flex-col items-center gap-4">
-                    <Button size="lg" className="bg-hafazny-blue">
+                    <Button 
+                      size="lg" 
+                      className="bg-hafazny-blue"
+                      onClick={handleStartRecording}
+                    >
                       <Mic className="mr-2 h-5 w-5" /> Start Recording
                     </Button>
                     <p className="text-sm text-gray-500">
@@ -238,7 +279,16 @@ const Tajweed: React.FC = () => {
                 <p className="mb-6 opacity-90">
                   Earn an official certificate in Tajweed by completing all lessons and passing the final assessment.
                 </p>
-                <Button variant="outline" className="bg-white/10 border-white hover:bg-white/20">
+                <Button 
+                  variant="outline" 
+                  className="bg-white/10 border-white hover:bg-white/20"
+                  onClick={() => {
+                    toast({
+                      title: "Coming Soon",
+                      description: "Tajweed Certification will be available soon!",
+                    });
+                  }}
+                >
                   Learn More
                 </Button>
               </div>

@@ -20,6 +20,13 @@ import About from "./pages/About";
 import { useEffect } from "react";
 import { getCurrentLanguage } from "./lib/i18n";
 
+// Import our new learning pages
+import ArabicAlphabet from "./pages/learning/ArabicAlphabet";
+import GrammarLesson from "./pages/learning/GrammarLesson";
+import QuranicVocabulary from "./pages/learning/QuranicVocabulary";
+import TajweedLesson from "./pages/learning/TajweedLesson";
+import TajweedPractice from "./pages/learning/TajweedPractice";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -53,6 +60,16 @@ const App = () => {
               <Route path="/community" element={<Community />} />
               <Route path="/memorization-plan" element={<MemorizationPlan />} />
               <Route path="/about" element={<About />} />
+              
+              {/* Arabic learning routes */}
+              <Route path="/learning/arabic-alphabet" element={<ArabicAlphabet />} />
+              <Route path="/learning/grammar" element={<GrammarLesson />} />
+              <Route path="/learning/vocabulary" element={<QuranicVocabulary />} />
+              
+              {/* Tajweed learning routes */}
+              <Route path="/learning/tajweed-lesson" element={<TajweedLesson />} />
+              <Route path="/learning/tajweed-practice" element={<TajweedPractice />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
