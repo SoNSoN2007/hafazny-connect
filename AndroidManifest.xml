@@ -1,0 +1,22 @@
+xml version=1.0 encoding=utf-8
+manifest xmlnsandroid=httpschemas.android.comapkresandroid
+    package=com.sonson.hafaznyconnect
+
+    application
+        androidallowBackup=true
+        androidicon=@mipmapic_launcher
+        androidlabel=Hafazny Connect
+        androidroundIcon=@mipmapic_launcher_round
+        androidsupportsRtl=true
+        androidtheme=@styleTheme.AppCompat
+
+        activity androidname=.MainActivity
+            intent-filter
+                action androidname=android.intent.action.MAIN 
+                category androidname=android.intent.category.LAUNCHER 
+            intent-filter
+        activity
+
+    application
+
+manifest
