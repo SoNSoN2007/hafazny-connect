@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Surah, reciters, getAudioUrl, getVerseText } from '@/lib/quranData';
 import { Button } from '@/components/ui/button';
@@ -33,12 +32,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   const [currentVerseName, setCurrentVerseName] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
     
-    // Event listeners
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
@@ -49,13 +46,11 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       setIsPlaying(false);
       setCurrentTime(0);
       
-      // Auto-advance to next verse when audio ends
       if (currentVerse < surah.verses) {
         setCurrentVerse(prev => prev + 1);
       }
     });
     
-    // Set initial source
     loadVerseAudio();
     
     return () => {
@@ -66,7 +61,6 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     };
   }, []);
   
-  // Update verse text and name when verse changes
   useEffect(() => {
     const verseText = getVerseText(surah.id, currentVerse);
     const verseParts = verseText.split(' - ');
@@ -77,12 +71,10 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     }
   }, [surah.id, currentVerse]);
   
-  // Update audio source when reciter or verse changes
   useEffect(() => {
     loadVerseAudio();
   }, [selectedReciter, surah.id, currentVerse]);
   
-  // Load audio for current verse
   const loadVerseAudio = () => {
     if (audioRef.current) {
       setIsAudioLoading(true);
@@ -100,7 +92,6 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       audioRef.current.src = audioUrl;
       audioRef.current.load();
       
-      // Add error handling
       const handleError = (e: Event) => {
         console.error("Error loading audio", e);
         setIsAudioLoading(false);
@@ -113,7 +104,6 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
       
       audioRef.current.addEventListener('error', handleError, { once: true });
       
-      // Restore playback state
       if (wasPlaying) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
@@ -129,7 +119,6 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
     }
   };
   
-  // Update volume when changed
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
@@ -199,16 +188,18 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
   
   const startMemorizing = () => {
     setShowMemorization(true);
-    // Pause current audio if playing
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
     }
   };
   
+  const goToFullMemorization = () => {
+    navigate(`/quran-memorization/${surah.id}`);
+  };
+  
   const showLearning = () => {
     setShowLearningFeatures(true);
-    // Pause current audio if playing
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -275,13 +266,11 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           </div>
         </div>
         
-        {/* Current Verse Text and Name */}
         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4 text-right font-arabic leading-loose">
           <p className="text-2xl mb-2">{getVerseText(surah.id, currentVerse).split(' - ')[0]}</p>
           <p className="text-lg text-hafazny-gold">{currentVerseName}</p>
         </div>
         
-        {/* Audio Player Controls */}
         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -350,14 +339,13 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           </div>
         </div>
         
-        {/* Learning Features Buttons */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button 
             className="bg-hafazny-gold hover:bg-amber-600 text-white"
             onClick={startMemorizing}
           >
             <BookOpen className="h-4 w-4 mr-2" />
-            Start Memorizing
+            Quick Memorization
           </Button>
           
           <Button 
@@ -374,6 +362,16 @@ const SurahDetails: React.FC<SurahDetailsProps> = ({ surah, onClose }) => {
           >
             <BookOpen className="h-4 w-4 mr-2" />
             Learn Tajweed
+          </Button>
+        </div>
+        
+        <div className="mt-4">
+          <Button 
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={goToFullMemorization}
+          >
+            <BookOpen className="h-4 w-4 mr-2" />
+            Full Surah Memorization (With Complete Text)
           </Button>
         </div>
       </CardContent>

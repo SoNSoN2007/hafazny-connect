@@ -20,12 +20,13 @@ import About from "./pages/About";
 import { useEffect } from "react";
 import { getCurrentLanguage } from "./lib/i18n";
 
-// Import our new learning pages
+// Import our learning pages
 import ArabicAlphabet from "./pages/learning/ArabicAlphabet";
 import GrammarLesson from "./pages/learning/GrammarLesson";
 import QuranicVocabulary from "./pages/learning/QuranicVocabulary";
 import TajweedLesson from "./pages/learning/TajweedLesson";
 import TajweedPractice from "./pages/learning/TajweedPractice";
+import QuranMemorization from "./pages/QuranMemorization";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,9 @@ const App = () => {
               {/* Tajweed learning routes */}
               <Route path="/learning/tajweed-lesson" element={<TajweedLesson />} />
               <Route path="/learning/tajweed-practice" element={<TajweedPractice />} />
+              
+              {/* Quran Memorization route */}
+              <Route path="/quran-memorization/:surahId" element={<QuranMemorization />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

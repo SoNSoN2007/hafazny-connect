@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -25,7 +24,7 @@ const arabicAlphabet = [
   { letter: 'ش', name: 'Shin', transliteration: 'sh', audioUrl: '' },
   { letter: 'ص', name: 'Sad', transliteration: 'ṣ', audioUrl: '' },
   { letter: 'ض', name: 'Dad', transliteration: 'ḍ', audioUrl: '' },
-  { letter: 'ط', name: 'Ta', transliteration: 'ṭ', audioUrl: '' },
+  { letter: 'ط', name: 'Taa', transliteration: 'ṭ', audioUrl: '' },
   { letter: 'ظ', name: 'Zha', transliteration: 'ẓ', audioUrl: '' },
   { letter: 'ع', name: 'Ayn', transliteration: '`', audioUrl: '' },
   { letter: 'غ', name: 'Ghayn', transliteration: 'gh', audioUrl: '' },
@@ -35,7 +34,7 @@ const arabicAlphabet = [
   { letter: 'ل', name: 'Lam', transliteration: 'l', audioUrl: '' },
   { letter: 'م', name: 'Mim', transliteration: 'm', audioUrl: '' },
   { letter: 'ن', name: 'Nun', transliteration: 'n', audioUrl: '' },
-  { letter: 'ه', name: 'Ha', transliteration: 'h', audioUrl: '' },
+  { letter: 'ه', name: 'Haa', transliteration: 'h', audioUrl: '' },
   { letter: 'و', name: 'Waw', transliteration: 'w', audioUrl: '' },
   { letter: 'ي', name: 'Ya', transliteration: 'y', audioUrl: '' },
 ];
@@ -57,7 +56,7 @@ const arabicPronunciations = {
   'Shin': 'شِين',
   'Sad': 'صَاد',
   'Dad': 'ضَاد',
-  'Ta': 'طَاء',
+  'Taa': 'طَاء',
   'Zha': 'ظَاء',
   'Ayn': 'عَيْن',
   'Ghayn': 'غَيْن',
@@ -67,7 +66,7 @@ const arabicPronunciations = {
   'Lam': 'لَام',
   'Mim': 'مِيم',
   'Nun': 'نُون',
-  'Ha': 'هَاء',
+  'Haa': 'هَاء',
   'Waw': 'وَاو',
   'Ya': 'يَاء',
 };
@@ -82,12 +81,9 @@ const ArabicAlphabet: React.FC = () => {
   const progress = ((currentIndex + 1) / arabicAlphabet.length) * 100;
 
   const playLetterSound = () => {
-    // Get the appropriate Arabic pronunciation of the letter name
     const arabicName = arabicPronunciations[currentLetter.name] || currentLetter.letter;
     
-    // Try to use proper Arabic pronunciation with Web Speech API
     if ('speechSynthesis' in window) {
-      // Find an Arabic voice if available
       const voices = window.speechSynthesis.getVoices();
       const arabicVoice = voices.find(voice => 
         voice.lang.includes('ar') || 
@@ -95,20 +91,16 @@ const ArabicAlphabet: React.FC = () => {
       );
       
       const utterance = new SpeechSynthesisUtterance(arabicName);
-      // Set language to Arabic
       utterance.lang = 'ar-SA';
       
-      // Use Arabic voice if found
       if (arabicVoice) {
         utterance.voice = arabicVoice;
       }
       
-      // Slow down the speech rate slightly for learning purposes
       utterance.rate = 0.8;
       
       window.speechSynthesis.speak(utterance);
       
-      // Display toast to inform about better TTS
       if (!isElevenLabsAvailable) {
         toast({
           title: "Basic Text-to-Speech",
@@ -132,7 +124,6 @@ const ArabicAlphabet: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load voices for speech synthesis
     if ('speechSynthesis' in window) {
       window.speechSynthesis.onvoiceschanged = () => {
         const voices = window.speechSynthesis.getVoices();
@@ -146,11 +137,9 @@ const ArabicAlphabet: React.FC = () => {
         }
       };
       
-      // Force voice loading
       window.speechSynthesis.getVoices();
     }
     
-    // Play sound when letter changes
     playLetterSound();
   }, [currentIndex]);
 
