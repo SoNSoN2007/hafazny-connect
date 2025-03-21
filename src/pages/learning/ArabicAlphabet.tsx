@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Volume2 } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 const arabicAlphabet = [
   { letter: 'ا', name: 'Alif', transliteration: 'a', audioUrl: '' },
@@ -39,21 +40,82 @@ const arabicAlphabet = [
   { letter: 'ي', name: 'Ya', transliteration: 'y', audioUrl: '' },
 ];
 
+// Map letter names to Arabic pronunciations
+const arabicPronunciations = {
+  'Alif': 'أَلِف',
+  'Ba': 'بَاء',
+  'Ta': 'تَاء',
+  'Tha': 'ثَاء',
+  'Jim': 'جِيم',
+  'Ha': 'حَاء',
+  'Kha': 'خَاء',
+  'Dal': 'دَال',
+  'Dhal': 'ذَال',
+  'Ra': 'رَاء',
+  'Zay': 'زَاي',
+  'Sin': 'سِين',
+  'Shin': 'شِين',
+  'Sad': 'صَاد',
+  'Dad': 'ضَاد',
+  'Ta': 'طَاء',
+  'Zha': 'ظَاء',
+  'Ayn': 'عَيْن',
+  'Ghayn': 'غَيْن',
+  'Fa': 'فَاء',
+  'Qaf': 'قَاف',
+  'Kaf': 'كَاف',
+  'Lam': 'لَام',
+  'Mim': 'مِيم',
+  'Nun': 'نُون',
+  'Ha': 'هَاء',
+  'Waw': 'وَاو',
+  'Ya': 'يَاء',
+};
+
 const ArabicAlphabet: React.FC = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [audio] = useState(new Audio());
+  const [isElevenLabsAvailable, setIsElevenLabsAvailable] = useState(false);
 
   const currentLetter = arabicAlphabet[currentIndex];
   const progress = ((currentIndex + 1) / arabicAlphabet.length) * 100;
 
   const playLetterSound = () => {
-    // In a real implementation, this would use actual audio files
-    // For now, we'll use the Web Speech API as a placeholder
+    // Get the appropriate Arabic pronunciation of the letter name
+    const arabicName = arabicPronunciations[currentLetter.name] || currentLetter.letter;
+    
+    // Try to use proper Arabic pronunciation with Web Speech API
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(currentLetter.name);
+      // Find an Arabic voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const arabicVoice = voices.find(voice => 
+        voice.lang.includes('ar') || 
+        voice.name.toLowerCase().includes('arabic')
+      );
+      
+      const utterance = new SpeechSynthesisUtterance(arabicName);
+      // Set language to Arabic
       utterance.lang = 'ar-SA';
+      
+      // Use Arabic voice if found
+      if (arabicVoice) {
+        utterance.voice = arabicVoice;
+      }
+      
+      // Slow down the speech rate slightly for learning purposes
+      utterance.rate = 0.8;
+      
       window.speechSynthesis.speak(utterance);
+      
+      // Display toast to inform about better TTS
+      if (!isElevenLabsAvailable) {
+        toast({
+          title: "Basic Text-to-Speech",
+          description: "For better Arabic pronunciation, consider using ElevenLabs TTS API",
+          duration: 3000,
+        });
+      }
     }
   };
 
@@ -70,6 +132,24 @@ const ArabicAlphabet: React.FC = () => {
   };
 
   useEffect(() => {
+    // Load voices for speech synthesis
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const hasArabicVoice = voices.some(voice => 
+          voice.lang.includes('ar') || 
+          voice.name.toLowerCase().includes('arabic')
+        );
+        
+        if (!hasArabicVoice) {
+          console.log("No Arabic voice found in the system");
+        }
+      };
+      
+      // Force voice loading
+      window.speechSynthesis.getVoices();
+    }
+    
     // Play sound when letter changes
     playLetterSound();
   }, [currentIndex]);
@@ -103,6 +183,9 @@ const ArabicAlphabet: React.FC = () => {
                   <div className="text-9xl font-arabic mb-6">{currentLetter.letter}</div>
                   
                   <div className="text-2xl font-bold mb-2">{currentLetter.name}</div>
+                  <div className="text-lg mb-2 text-gray-700 font-arabic">
+                    {arabicPronunciations[currentLetter.name] || currentLetter.letter}
+                  </div>
                   <div className="text-gray-600 mb-4">Transliteration: {currentLetter.transliteration}</div>
                   
                   <Button 
